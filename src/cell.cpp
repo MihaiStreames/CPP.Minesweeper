@@ -3,7 +3,7 @@
 #include "cell.hpp"
 #include "common.hpp"
 
-Cell::Cell(Point center, float w, float h)
+Cell::Cell(Point<float> center, float w, float h)
     : r_(center, w, h, COLOR_BLACK, COLOR_LIGHT_GREY),
       isBomb_(false),
       visible_(false),
@@ -111,11 +111,11 @@ int Cell::getNeighborBombCount() const {
     return bombNeighborCount_;
 }
 
-Point Cell::getCenter() const {
+Point<float> Cell::getCenter() const {
     return r_.getCenter();
 }
 
-void Cell::mouseMove(Point mouseLoc) {
+void Cell::mouseMove(Point<float> mouseLoc) {
     if (r_.contains(mouseLoc)) {
         r_.setFrameColor(COLOR_RED);
     } else {
@@ -123,7 +123,7 @@ void Cell::mouseMove(Point mouseLoc) {
     }
 }
 
-void Cell::mouseClick(Point mouseLoc, bool rightClick) {
+void Cell::mouseClick(Point<float> mouseLoc, bool rightClick) {
     if (r_.contains(mouseLoc)) {
         if (rightClick) {
             toggleMark();

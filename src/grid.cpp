@@ -2,11 +2,15 @@
 
 #include "grid.hpp"
 
-Grid::Grid(int gridSize, float cellW, float cellH)
+using u64 = long unsigned int;
+
+Grid::Grid(int gridSize, int minesCount, float cellW, float cellH)
     : size_(gridSize),
       cellWidth_(cellW),
       cellHeight_(cellH),
-      totalMines_(0) {
+      totalMines_(minesCount),
+      firstClick_(true)
+     {
     float cellMargin = 3.0f;
     float adjustedCellWidth = cellWidth_ - cellMargin;
     float adjustedCellHeight = cellHeight_ - cellMargin;
@@ -15,32 +19,26 @@ Grid::Grid(int gridSize, float cellW, float cellH)
     for (int i = 0; i < size_; ++i) {
         cells_[i].reserve(size_);
         for (int j = 0; j < size_; ++j) {
-            Point center = {
+            Point<float> center = {
                 static_cast<float>(j) * cellWidth_ + cellWidth_ / 2,
                 static_cast<float>(i) * cellHeight_ + cellHeight_ / 2 + 50 // Offset for timer and mine count
             };
             cells_[i].emplace_back(center, adjustedCellWidth, adjustedCellHeight);
         }
     }
-
-    placeBombs();
-    setupNeighbors();
-    calculateAllBombNeighbors();
 }
 
-void Grid::placeBombs() {
-    int numBombs = static_cast<int>(static_cast<double>(size_ * size_) * 0.15 + 0.5);
-    totalMines_ = numBombs;
+void Grid::placeBombs(Point<u64> first) {
     int placedBombs = 0;
+    while (placedBombs < totalMines_) {
+        u64 i = rand() % size_;
+        u64 j = rand() % size_;
+        if (i <= first.x + 1 && first.x <= i + 1 && j <= first.y + 1 && first.y <= j + 1) continue; // Mine cannot be around first click cell
+        if (cells_[i][j].isBombCell()) continue;
 
-    while (placedBombs < numBombs) {
-        int i = rand() % size_;
-        int j = rand() % size_;
-        if (!cells_[i][j].isBombCell()) {
-            cells_[i][j].setBomb(true);
-            mines.push_back(&cells_[i][j]);
-            ++placedBombs;
-        }
+        cells_[i][j].setBomb(true);
+        mines.push_back(&cells_[i][j]);
+        ++placedBombs;
     }
 }
 
@@ -72,45 +70,40 @@ void Grid::calculateAllBombNeighbors() {
 }
 
 void Grid::draw() {
-    for (auto& row : cells_) {
-        for (auto& cell : row) {
+    for (auto& row : cells_)
+        for (auto& cell : row)
             cell.draw();
-        }
-    }
 }
 
-void Grid::mouseMove(Point mouseLoc) {
-    for (auto& row : cells_) {
-        for (auto& cell : row) {
+void Grid::mouseMove(Point<float> mouseLoc) {
+    for (auto& row : cells_)
+        for (auto& cell : row)
             cell.mouseMove(mouseLoc);
-        }
-    }
 }
 
-int Grid::mouseClick(Point mouseLoc, bool rightClick) {
-    bool bombClicked = false;
-    for (auto& row : cells_) {
-        for (auto& cell : row) {
+int Grid::mouseClick(Point<float> mouseLoc, bool rightClick) {
+    for (u64 x = 0; x < cells_.size(); x++) {
+        for (u64 y = 0; y < cells_[x].size(); y++) {
+            auto& cell = cells_[x][y];
             if (cell.getCenter().x - cellWidth_ / 2 <= mouseLoc.x &&
                 mouseLoc.x <= cell.getCenter().x + cellWidth_ / 2 &&
                 cell.getCenter().y - cellHeight_ / 2 <= mouseLoc.y &&
                 mouseLoc.y <= cell.getCenter().y + cellHeight_ / 2) {
 
-                cell.mouseClick(mouseLoc, rightClick);
-                if (!rightClick && cell.isBombCell() && cell.isVisible()) {
-                    bombClicked = true;
+                if (firstClick_ && !rightClick) {
+                    placeBombs(Point<u64> { x, y });
+                    setupNeighbors();
+                    calculateAllBombNeighbors();
+                    firstClick_ = false;
                 }
-                break;
+                if (!cell.isVisible()) cell.mouseClick(mouseLoc, rightClick);
+                else;// TODO: If mine count satisfied, attempt to open neighbours
+                if (!rightClick && cell.isBombCell() && cell.isVisible()) return -1;
             }
         }
     }
-    if (bombClicked) {
-        return -1;
-    } else if (checkWinCondition()) {
-        return 1;
-    } else {
-        return 0;
-    }
+
+    return checkWinCondition();
 }
 
 int Grid::getTotalMines() const {
@@ -130,9 +123,8 @@ int Grid::getMarkedCellsCount() const {
 }
 
 void Grid::reset() {
-    totalMines_ = 0;
-    mines.clear();
-    *this = Grid(size_, cellWidth_, cellHeight_);
+    // mines.clear(); // freed by RAII
+    *this = Grid(size_, totalMines_, cellWidth_, cellHeight_);
 }
 
 bool Grid::checkWinCondition() {

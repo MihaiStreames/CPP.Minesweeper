@@ -5,7 +5,7 @@
 #include "common.hpp"
 
 Canvas::Canvas()
-    : grid_(10, 50, 50),
+    : grid_(10, 15, 50, 50),
       mineCounterText_("Mines: 0", { 0, 20 }),
       timerText_("Time: 0", { 0, 20 }),
       mineCount_(0),
@@ -48,6 +48,7 @@ void Canvas::draw() {
         } else {
             revealingMines_ = false;
         }
+        // TODO: add revealing erroneous flags
     }
 
     if (gameOver_ && !revealingMines_) {
@@ -60,7 +61,7 @@ void Canvas::draw() {
     }
 }
 
-void Canvas::showGameOverMessage() {
+void Canvas::showGameOverMessage() const {
     ALLEGRO_COLOR overlayColor = al_map_rgba(0, 0, 0, 128);
     al_draw_filled_rectangle(0, 0, static_cast<float>(windowWidth), static_cast<float>(windowHeight), overlayColor);
 
@@ -80,13 +81,13 @@ void Canvas::showGameOverMessage() {
     restartText.draw();
 }
 
-void Canvas::mouseMove(Point mouseLoc) {
+void Canvas::mouseMove(Point<float> mouseLoc) {
     if (!gameOver_) {
         grid_.mouseMove(mouseLoc);
     }
 }
 
-void Canvas::mouseClick(Point mouseLoc, bool rightClick) {
+void Canvas::mouseClick(Point<float> mouseLoc, bool rightClick) {
     if (!gameOver_ && !revealingMines_) {
         int gameState = grid_.mouseClick(mouseLoc, rightClick);
         if (gameState == -1) {

@@ -11,15 +11,16 @@ class Grid {
     float cellHeight_;
     std::vector<std::vector<Cell>> cells_;
     int totalMines_;
-    void placeBombs();
+    bool firstClick_;
+    void placeBombs(Point<long unsigned int> first);
     void setupNeighbors();
     void calculateAllBombNeighbors();
 
 public:
-    Grid(int gridSize, float cellW, float cellH);
+    Grid(int gridSize, int minesCount, float cellW, float cellH);
     void draw();
-    void mouseMove(Point mouseLoc);
-    int mouseClick(Point mouseLoc, bool rightClick);
+    void mouseMove(Point<float> mouseLoc);
+    int mouseClick(Point<float> mouseLoc, bool rightClick);
     int getTotalMines() const;
     int getMarkedCellsCount() const;
     void reset();

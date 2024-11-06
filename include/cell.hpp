@@ -16,7 +16,7 @@ class Cell {
     std::vector<Cell*> neighbors_;
 
 public:
-    Cell(Point center, float w, float h);
+    Cell(Point<float> center, float w, float h);
 
     void setBomb(bool bomb);
     void setNeighborBombCount(int count);
@@ -30,10 +30,10 @@ public:
     bool isMarked() const;
     bool isBombCell() const;
     int getNeighborBombCount() const;
-    Point getCenter() const;
+    Point<float> getCenter() const;
 
-    void mouseMove(Point mouseLoc);
-    void mouseClick(Point mouseLoc, bool rightClick);
+    void mouseMove(Point<float> mouseLoc);
+    void mouseClick(Point<float> mouseLoc, bool rightClick);
 
 private:
     ALLEGRO_COLOR getNumberColor(int number);

@@ -24,13 +24,13 @@ public:
     Canvas();
 
     void draw();
-    void mouseMove(Point mouseLoc);
-    void mouseClick(Point mouseLoc, bool rightClick);
+    void mouseMove(Point<float> mouseLoc);
+    void mouseClick(Point<float> mouseLoc, bool rightClick);
     void keyDown(int keyCode);
 
 private:
     void updateTextPositions();
-    void showGameOverMessage();
+    void showGameOverMessage() const;
 };
 
 #endif // CANVAS_HPP

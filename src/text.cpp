@@ -4,7 +4,7 @@
 
 #include "text.hpp"
 
-Text::Text(const std::string& text, Point center, ALLEGRO_COLOR color)
+Text::Text(const std::string& text, Point<float> center, ALLEGRO_COLOR color)
     : s_{ text }, center_{ center }, color_{ color } {}
 
 void Text::draw() {
@@ -26,7 +26,7 @@ void Text::setString(const std::string& newString) {
     s_ = newString;
 }
 
-void Text::setCenter(Point newCenter) {
+void Text::setCenter(Point<float> newCenter) {
     center_ = newCenter;
 }
 
@@ -34,7 +34,7 @@ void Text::setColor(ALLEGRO_COLOR newColor) {
     color_ = newColor;
 }
 
-Point Text::getCenter() const {
+Point<float> Text::getCenter() const {
     return center_;
 }
 

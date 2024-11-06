@@ -72,7 +72,7 @@ int main() {
                 canvas.mouseMove({ static_cast<float>(event.mouse.x), static_cast<float>(event.mouse.y) });
                 break;
             case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-                canvas.mouseClick({ static_cast<float>(event.mouse.x), static_cast<float>(event.mouse.y) },
+                canvas.mouseClick(Point<float> { static_cast<float>(event.mouse.x), static_cast<float>(event.mouse.y) },
                                   event.mouse.button == 2 || event.mouse.button == 3);
                 break;
             case ALLEGRO_EVENT_DISPLAY_CLOSE:
